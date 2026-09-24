@@ -15,21 +15,7 @@ const resolved = [
   .map((name) => process.env[name]?.trim())
   .find(Boolean);
 
-if (resolved) {
-  process.env.DATABASE_URL = resolved;
-} else {
-  const isGenerateOnly =
-    process.env.npm_lifecycle_event === "postinstall" ||
-    process.argv.includes("generate");
-
-  if (process.env.VERCEL && !isGenerateOnly) {
-    throw new Error(
-      "DATABASE_URL is empty. Add DATABASE_URL in Vercel → Settings → Environment Variables, or attach Vercel Postgres so POSTGRES_URL is set.",
-    );
-  }
-
-  process.env.DATABASE_URL = GENERATE_PLACEHOLDER_URL;
-}
+process.env.DATABASE_URL = resolved ?? GENERATE_PLACEHOLDER_URL;
 
 export default defineConfig({
   schema: "prisma/schema.prisma",

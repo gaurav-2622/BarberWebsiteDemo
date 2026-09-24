@@ -9,13 +9,16 @@ for the Production environment (and Preview if you want those deploys to work).
 Vercel runs `npm install`, then `npm run build`.
 
 - `postinstall` runs `prisma generate` so the Prisma Client exists after install.
-- `build` runs `prisma generate && prisma migrate deploy && next build` so pending
-  PostgreSQL migrations are applied before Next.js compiles.
+- `build` / `vercel-build` run `prisma generate`, then apply migrations only if a
+  database URL is present, then `next build`.
 
-`DATABASE_URL` is required at **build** time for `prisma migrate deploy`. It is
-not required during `npm install` / `postinstall`. `prisma generate` only needs
-the schema; if `DATABASE_URL` is missing at that point, Prisma uses a local
-placeholder URL and does not connect to the database.
+`prisma generate` does not need a real database. If `DATABASE_URL` is missing,
+Prisma uses a local placeholder URL and does not connect.
+
+`prisma migrate deploy` runs only when `DATABASE_URL` or a Vercel Postgres
+`POSTGRES_*` URL is set. If none is set, the Next.js build still completes and
+the skip is logged. Bookings, admin, and other database routes will fail at
+runtime until you add a hosted Postgres URL and redeploy (so migrations apply).
 
 ## Environment variables
 
@@ -31,7 +34,8 @@ app now copies `POSTGRES_URL_NON_POOLING` / `POSTGRES_PRISMA_URL` / `POSTGRES_UR
 into `DATABASE_URL` for generate, migrate, and runtime.
 
 `prisma migrate deploy` still needs a **non-empty** production URL. An empty
-`DATABASE_URL` in the Vercel dashboard will fail the build.
+`DATABASE_URL` in the Vercel dashboard is ignored so the Next.js build can
+finish; add a real URL when you are ready to apply migrations.
 
 Local Docker variables (`POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`,
 `POSTGRES_PORT`) are not needed on Vercel.
