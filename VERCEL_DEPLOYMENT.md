@@ -12,8 +12,10 @@ Vercel runs `npm install`, then `npm run build`.
 - `build` runs `prisma generate && prisma migrate deploy && next build` so pending
   PostgreSQL migrations are applied before Next.js compiles.
 
-`DATABASE_URL` must be available at build time, or `prisma migrate deploy` will
-fail.
+`DATABASE_URL` is required at **build** time for `prisma migrate deploy`. It is
+not required during `npm install` / `postinstall`. `prisma generate` only needs
+the schema; if `DATABASE_URL` is missing at that point, Prisma uses a local
+placeholder URL and does not connect to the database.
 
 ## Environment variables
 
