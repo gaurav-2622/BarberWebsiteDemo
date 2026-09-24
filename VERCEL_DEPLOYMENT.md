@@ -23,7 +23,15 @@ placeholder URL and does not connect to the database.
 
 | Name | Required | Notes |
 | --- | --- | --- |
-| `DATABASE_URL` | Yes | Production PostgreSQL connection string. Use the pooled or direct URL your host provides. Prisma reads this during `migrate deploy` and at runtime. |
+| `DATABASE_URL` | Yes (or a Vercel Postgres URL) | Production PostgreSQL connection string. Prisma migrate and the app read this first. |
+| `POSTGRES_URL` | Alternative | Created automatically if you click **Storage → Create Database → Postgres** on Vercel. Also accepted: `POSTGRES_PRISMA_URL`, `POSTGRES_URL_NON_POOLING`. |
+
+If you only attached Vercel/Neon Postgres and did not create `DATABASE_URL`, the
+app now copies `POSTGRES_URL_NON_POOLING` / `POSTGRES_PRISMA_URL` / `POSTGRES_URL`
+into `DATABASE_URL` for generate, migrate, and runtime.
+
+`prisma migrate deploy` still needs a **non-empty** production URL. An empty
+`DATABASE_URL` in the Vercel dashboard will fail the build.
 
 Local Docker variables (`POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`,
 `POSTGRES_PORT`) are not needed on Vercel.
