@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: barber-shop-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-barber_shop}
+      POSTGRES_USER: ${POSTGRES_USER:-barber}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-barber_dev_password}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - barber-shop-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-barber} -d ${POSTGRES_DB:-barber_shop}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  barber-shop-postgres-data:
